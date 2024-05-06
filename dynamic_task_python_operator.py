@@ -1,14 +1,11 @@
-from framework_module.processes.adls_current_to_adls_stage import adls_current_to_adls_stage
-from framework_module.processes.truncate_snowflake_raw import truncate_snowflake_raw
-from framework_module.processes.adls_stage_to_snowflake_raw import adls_stage_to_snowflake_raw
-from framework_module.processes.adls_stage_to_adls_processed import adls_stage_to_adls_processed
-from framework_module.edp_kubernetes_operator import EDPDAGHelper, EDPDBTKubernetesPodOperator
+
 
 import pendulum
 from airflow import DAG
 from airflow import XComArg
 from airflow.decorators import task_group
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy import DummyOperator
 
 from airflow.models import Variable
 from datetime import datetime, timedelta
@@ -43,10 +40,9 @@ dag = DAG(
     tags=['srci', 'to-be-deleted']
 )
 
-edp_dag_helper = EDPDAGHelper(dag=dag)
 
-START_TASK = edp_dag_helper.start_task()
-END_TASK = edp_dag_helper.end_task()
+START_TASK = START_Task=DummyOperator(task_id='START',dag=dag)
+END_TASK = START_Task=DummyOperator(task_id='END',dag=dag)
 
 
 def one_two_three_traditional():
