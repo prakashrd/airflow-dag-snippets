@@ -1,14 +1,11 @@
-from framework_module.processes.adls_current_to_adls_stage import adls_current_to_adls_stage
-from framework_module.processes.truncate_snowflake_raw import truncate_snowflake_raw
-from framework_module.processes.adls_stage_to_snowflake_raw import adls_stage_to_snowflake_raw
-from framework_module.processes.adls_stage_to_adls_processed import adls_stage_to_adls_processed
-from framework_module.edp_kubernetes_operator import EDPDAGHelper, EDPDBTKubernetesPodOperator
+
 
 import pendulum
 from airflow import DAG
 from airflow import XComArg
 from airflow.decorators import task_group
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy import DummyOperator
 from airflow.operators.bash import BashOperator
 from airflow import XComArg
 
@@ -47,11 +44,13 @@ dag = DAG(
 
 edp_dag_helper = EDPDAGHelper(dag=dag)
 
-START_TASK = edp_dag_helper.start_task()
-END_TASK = edp_dag_helper.end_task()
+START_TASK = DummyOperator(task_id='START',dag=dag)
+END_TASK = DummyOperator(task_id='END',dag=dag)
 
 # Creating the task to fetch the config passed when triggering the dag
 def fetch_dag_config(**kwargs):
+    # source: https://medium.com/@nishantmiglani95/reading-dag-config-and-creating-dynamic-tasks-8cd081da9011
+    # input to be provided like : {"bash_commands":["echo BashOperator1","echo BashOperator2"]}
     # bash_commands is the key of the config that we passed while triggering the dag
     return kwargs["dag_run"].conf.get("bash_commands")
 
